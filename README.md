@@ -1,8 +1,8 @@
 # Polymer::Elements::Rails
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/polymer/elements/rails`. To experiment with that code, run `bin/console` for an interactive prompt.
+Polymer elements are a set of webcomponents [https://elements.polymer-project.org/](https://elements.polymer-project.org/) developed to use them with Polymer.
 
-TODO: Delete this and the text above, and describe your gem
+Polymer-elements-rails gem helps you to bring polymer elements into your Rails project.
 
 ## Installation
 
@@ -22,7 +22,23 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+In order to use Polymer elements you need to have [polymer](https://www.polymer-project.org/1.0/) installed in your project. Use [polymer-rails](https://github.com/alchapone/polymer-rails) gem for adding polymer to your Rails application.
+
+Add this to your `Gemfile`:
+
+```
+  gem 'polymer-rails'
+  gem 'polymer-paper-rails'
+```
+
+After running bundle install require needed paper elements into your `application.html` manifest file.
+
+```
+  //= require polymer/polymer
+  //= require paper-button/paper-button
+```
+
+Each component should be required only once. Thus if you've already required component that has dependencies, you don't need to explicitly require any of dependencies, otherwise it will raise exception.
 
 ## Development
 
