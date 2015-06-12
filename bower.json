@@ -1,0 +1,9 @@
+{
+  "name": "polymer-paper-rails",
+  "private": true,
+  "dependencies": {
+    "iron-elements": "PolymerElements/iron-elements#^1.0.0",
+    "paper-elements": "PolymerElements/paper-elements#^1.0.1",
+    "neon-elements": "PolymerElements/neon-elements#^1.0.0"
+  }
+}
