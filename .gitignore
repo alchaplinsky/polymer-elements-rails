@@ -23,6 +23,10 @@
 /app/assets/components/**/index.html
 /app/assets/components/**/README.md
 /app/assets/components/**/LICENSE
+/app/assets/components/**/History.md
+/app/assets/components/**/COPYING.txt
 /app/assets/components/**/CONTRIBUTING.md
 /app/assets/components/**/hero.svg
+/app/assets/components/**/*.map.json
 /app/assets/components/**/*.js.map
+/app/assets/components/**/*.js.gz
