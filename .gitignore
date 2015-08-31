@@ -25,3 +25,4 @@
 /app/assets/components/**/LICENSE
 /app/assets/components/**/CONTRIBUTING.md
 /app/assets/components/**/hero.svg
+/app/assets/components/**/*.js.map
