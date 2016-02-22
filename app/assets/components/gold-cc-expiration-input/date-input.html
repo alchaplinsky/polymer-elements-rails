@@ -9,17 +9,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-input/iron-input.html">
-<link rel="import" href="../iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
+<link rel="import" href="../paper-input/paper-input-container.html">
+<link rel="import" href="../paper-styles/default-theme.html">
+<link rel="import" href="../paper-styles/typography.html">
+
 <link rel="import" href="date-validator.html">
 
 <dom-module id="date-input">
 
   <style>
-    :host {
-      display: inline-block;
-    }
-
     span {
       @apply(--paper-input-container-font);
       opacity: 0.33;
@@ -37,8 +37,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--paper-input-container-input-color, --primary-text-color);
       text-align: center;
 
+      @apply(--layout-flex);
       @apply(--paper-font-subhead);
       @apply(--paper-input-container-input);
+    }
+
+    .container {
+      @apply(--layout-horizontal);
     }
 
   </style>
@@ -49,7 +54,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <span aria-hidden id="monthLabel" hidden>Month</span>
     <span aria-hidden id="yearLabel" hidden>Year</span>
 
-    <div class="horizontal layout">
+    <div class="container">
       <input is="iron-input"
           aria-labelledby$="[[_computeAriaLabel(ariaLabelPrefix,'monthLabel')]]"
           required$="[[required]]"
@@ -60,9 +65,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           prevent-invalid-input
           autocomplete="cc-exp-month"
           type="tel"
-          class="flex">
+          disabled$="[[disabled]]"
+          invalid="{{invalid}}"
+          autofocus$="[[autofocus]]"
+          inputmode$="[[inputmode]]"
+          placeholder$="[[placeholder]]"
+          readonly$="[[readonly]]">
       <span>/</span>
       <input is="iron-input"
+          id="expirationYear"
           aria-labelledby$="[[_computeAriaLabel(ariaLabelPrefix,'yearLabel')]]"
           required$="[[required]]"
           maxlength="2"
@@ -72,7 +83,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           prevent-invalid-input
           autocomplete="cc-exp-year"
           type="tel"
-          class="flex">
+          disabled$="[[disabled]]"
+          invalid="{{invalid}}"
+          autofocus$="[[autofocus]]"
+          inputmode$="[[inputmode]]"
+          placeholder$="[[placeholder]]"
+          readonly$="[[readonly]]">
     </div>
   </template>
 
@@ -137,6 +153,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Months are 0-11.
       this.date = {month: month, year: year};
       this.fire('dateChanged', this.date);
+      // Advance cursor to year after month entry
+      if (month.length === 2) {
+        this.$.expirationYear.focus();
+      }
     },
 
     validate: function() {
