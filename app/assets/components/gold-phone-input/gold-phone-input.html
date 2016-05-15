@@ -11,9 +11,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../paper-input/paper-input-behavior.html">
 <link rel="import" href="../paper-input/paper-input-container.html">
 <link rel="import" href="../paper-input/paper-input-error.html">
+<link rel="import" href="../paper-styles/typography.html">
 <link rel="import" href="../iron-input/iron-input.html">
 <link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
-<link rel="import" href="../iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 
 <!--
 `<gold-phone-input>` is a single-line text field with Material Design styling
@@ -50,6 +51,8 @@ See `Polymer.PaperInputBehavior` for more API docs.
 See `Polymer.PaperInputContainer` for a list of custom properties used to
 style this element.
 
+`--gold-phone-input-country-code` | Mixin applied to the country code span
+
 @group Gold Elements
 @hero hero.svg
 @demo demo/index.html
@@ -57,38 +60,67 @@ style this element.
 -->
 
 <dom-module id="gold-phone-input">
-  <style>
-  :host {
-    display: block;
-  }
-
-  /* TODO: This should be a dropdown */
-  span {
-    @apply(--paper-font-subhead);
-    @apply(--paper-input-container-input);
-    width: 40px;
-  }
-
-  </style>
-
   <template>
-    <paper-input-container id="container" auto-validate="[[autoValidate]]">
+    <style>
+      :host {
+        display: block;
+      }
 
-      <label style="left:40px;" hidden$="[[!label]]">[[label]]</label>
+      /* TODO: This should be a dropdown */
+      span {
+        @apply(--paper-font-subhead);
+        @apply(--paper-input-container-input);
+        width: 40px;
+      }
 
-      <div class="horizontal layout">
-        <span>+<span>[[countryCode]]</span></span>
+      .country-code {
+        @apply(--gold-phone-input-country-code);
+      }
 
-        <input is="iron-input" id="input" class="flex"
+      .container {
+        @apply(--layout-horizontal);
+      }
+
+      /* TODO(notwaldorf): The style applied by paper-input-container is more
+       * specific, and we need the important to override it. This will go away
+       * once we can refactor this element to use the paper-input suffix */
+      label {
+        left: 40px !important;
+      }
+
+      input {
+        @apply(--layout-flex);
+      }
+    </style>
+    <paper-input-container id="container"
+        disabled$="[[disabled]]"
+        no-label-float="[[noLabelFloat]]"
+        always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]"
+        invalid="[[invalid]]">
+
+      <label hidden$="[[!label]]">[[label]]</label>
+
+      <div class="container">
+         <span class="country-code">+[[countryCode]]</span>
+
+        <input is="iron-input" id="input"
           aria-labelledby$="[[_ariaLabelledBy]]"
           aria-describedby$="[[_ariaDescribedBy]]"
           required$="[[required]]"
           bind-value="{{value}}"
           name$="[[name]]"
-          allowed-pattern="[0-9]"
+          allowed-pattern="[0-9\-]"
           autocomplete="tel"
           type="tel"
-          prevent-invalid-input>
+          prevent-invalid-input
+          disabled$="[[disabled]]"
+          invalid="{{invalid}}"
+          autofocus$="[[autofocus]]"
+          inputmode$="[[inputmode]]"
+          placeholder$="[[placeholder]]"
+          readonly$="[[readonly]]"
+          maxlength$="[[maxlength]]"
+          size$="[[size]]">
       </div>
 
       <template is="dom-if" if="[[errorMessage]]">
@@ -98,10 +130,7 @@ style this element.
     </paper-input-container>
   </template>
 
-</dom-module>
-
-<script>
-(function() {
+  <script>
   Polymer({
 
     is: 'gold-phone-input',
@@ -136,12 +165,23 @@ style this element.
         type: String,
         value: 'XXX-XXX-XXXX',
         observer: '_phoneNumberPatternChanged'
+      },
+
+      value: {
+        type: String,
+        observer: '_onValueChanged'
       }
     },
 
     observers: [
-      '_computeValue(value)'
+      '_onFocusedChanged(focused)'
     ],
+
+    ready: function() {
+      // If there's an initial input, validate it.
+      if (this.value)
+        this._handleAutoValidate();
+    },
 
     _phoneNumberPatternChanged: function() {
       // Transform the pattern into a regex the iron-input understands.
@@ -150,15 +190,24 @@ style this element.
       regex = regex.replace(/X/gi, '\\d');
       regex = regex.replace(/\+/g, '\\+');
       this.$.input.pattern = regex;
-
-      if (this.autoValidate) {
-        this.$.container.invalid = !this.$.input.validate();
-      }
     },
 
-    _computeValue: function(value) {
+    /**
+     * A handler that is called on input
+     */
+    _onValueChanged: function(value, oldValue) {
+      // The initial property assignment is handled by `ready`.
+      if (oldValue == undefined || value === oldValue)
+        return;
+
+      //Ensure value is a string
+      value = value ? value.toString() : '';
+
+      // Keep track of how many dashes the original value has. After
+      // reformatting the value, we might gain or lose some of them, which
+      // means we have to correctly move the caret to account for the difference.
       var start = this.$.input.selectionStart;
-      var previousCharADash = this.value.charAt(start - 1) == '-';
+      var initialDashesBeforeCaret = value.substr(0, start).split('-').length - 1;
 
       // Remove any already-applied formatting.
       value = value.replace(/-/g, '');
@@ -182,16 +231,45 @@ style this element.
         formattedValue += value[i];
       }
 
-      this.value = formattedValue.trim();
+      var updatedDashesBeforeCaret = formattedValue.substr(0, start).split('-').length - 1;
+      var dashesDifference = updatedDashesBeforeCaret - initialDashesBeforeCaret;
 
-      // If the character right before the selection is a newly inserted
-      // dash, we need to advance the selection to maintain the caret position.
-      if (!previousCharADash && this.value.charAt(start - 1) == '-')
-        this.$.input.selectionStart++;
+      // Note: this will call _onValueChanged again, which will move the
+      // cursor to the end of the value. Correctly adjust the caret afterwards.
+      this.updateValueAndPreserveCaret(formattedValue.trim());
+
+      // Advance or back up the caret based on the change that happened before it.
+      this.$.input.selectionStart = this.$.input.selectionEnd = start + dashesDifference;
+
+      this._handleAutoValidate();
+    },
+
+    /**
+     * Overidden from Polymer.PaperInputBehavior.
+     */
+    validate: function() {
+      // Update the container and its addons (i.e. the custom error-message).
+      var valid = this.$.input.validate()
+      this.$.container.invalid = !valid;
+      this.$.container.updateAddons({
+        inputElement: this.$.input,
+        value: this.value,
+        invalid: !valid
+      });
+
+      return valid;
+    },
+
+    /**
+     * Overidden from Polymer.IronControlState.
+     */
+    _onFocusedChanged: function(focused) {
+      if (!focused) {
+        this._handleAutoValidate();
+      }
     }
+  });
 
-  })
+  </script>
 
-})();
-
-</script>
+</dom-module>

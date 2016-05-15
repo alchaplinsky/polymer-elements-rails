@@ -25,25 +25,25 @@ Examples:
 
 If I create an instance like this:
 
-    <iron-meta key="info" keyUrl="foo/bar"></iron-meta>
+    <iron-meta key="info" value="foo/bar"></iron-meta>
 
-Note that keyUrl="foo/bar" is the metadata I've defined. I could define more
+Note that value="foo/bar" is the metadata I've defined. I could define more
 attributes or use child nodes to define additional metadata.
 
 Now I can access that element (and it's metadata) from any iron-meta instance
 via the byKey method, e.g.
 
-    meta.byKey('info').getAttribute('keyUrl').
+    meta.byKey('info').getAttribute('value');
 
 Pure imperative form would be like:
 
-    document.createElement('iron-meta').byKey('info').getAttribute('keyUrl');
+    document.createElement('iron-meta').byKey('info').getAttribute('value');
 
 Or, in a Polymer element, you can include a meta in your template:
 
     <iron-meta id="meta"></iron-meta>
     ...
-    this.$.meta.byKey('info').getAttribute('keyUrl');
+    this.$.meta.byKey('info').getAttribute('value');
 
 @group Iron Elements
 @demo demo/index.html
@@ -58,6 +58,7 @@ Or, in a Polymer element, you can include a meta in your template:
     // monostate data
     var metaDatas = {};
     var metaArrays = {};
+    var singleton = null;
 
     Polymer.IronMeta = Polymer({
 
@@ -68,10 +69,6 @@ Or, in a Polymer element, you can include a meta in your template:
         /**
          * The type of meta-data.  All meta-data of the same type is stored
          * together.
-         *
-         * @attribute type
-         * @type String
-         * @default 'default'
          */
         type: {
           type: String,
@@ -81,10 +78,6 @@ Or, in a Polymer element, you can include a meta in your template:
 
         /**
          * The key used to store `value` under the `type` namespace.
-         *
-         * @attribute key
-         * @type String
-         * @default ''
          */
         key: {
           type: String,
@@ -93,10 +86,6 @@ Or, in a Polymer element, you can include a meta in your template:
 
         /**
          * The meta-data to store or retrieve.
-         *
-         * @attribute value
-         * @type *
-         * @default this
          */
         value: {
           type: Object,
@@ -106,10 +95,6 @@ Or, in a Polymer element, you can include a meta in your template:
 
         /**
          * If true, `value` is set to the iron-meta instance itself.
-         *
-         * @attribute self
-         * @type Boolean
-         * @default false
          */
          self: {
           type: Boolean,
@@ -118,9 +103,6 @@ Or, in a Polymer element, you can include a meta in your template:
 
         /**
          * Array of all meta-data values for the given type.
-         *
-         * @property list
-         * @type Array
          */
         list: {
           type: Array,
@@ -129,9 +111,15 @@ Or, in a Polymer element, you can include a meta in your template:
 
       },
 
+      hostAttributes: {
+        hidden: true
+      },
+
       /**
        * Only runs if someone invokes the factory/constructor directly
        * e.g. `new Polymer.IronMeta()`
+       *
+       * @param {{type: (string|undefined), key: (string|undefined), value}=} config
        */
       factoryImpl: function(config) {
         if (config) {
@@ -184,8 +172,8 @@ Or, in a Polymer element, you can include a meta in your template:
        * Retrieves meta data value by key.
        *
        * @method byKey
-       * @param {String} key The key of the meta-data to be returned.
-       * @returns *
+       * @param {string} key The key of the meta-data to be returned.
+       * @return {*}
        */
       byKey: function(key) {
         return this._metaData && this._metaData[key];
@@ -223,6 +211,13 @@ Or, in a Polymer element, you can include a meta in your template:
 
     });
 
+    Polymer.IronMeta.getIronMeta = function getIronMeta() {
+       if (singleton === null) {
+         singleton = new Polymer.IronMeta();
+       }
+       return singleton;
+     };
+
     /**
     `iron-meta-query` can be used to access infomation stored in `iron-meta`.
 
@@ -232,7 +227,7 @@ Or, in a Polymer element, you can include a meta in your template:
 
         <iron-meta key="info" value="foo/bar"></iron-meta>
 
-    Note that keyUrl="foo/bar" is the metadata I've defined. I could define more
+    Note that value="foo/bar" is the metadata I've defined. I could define more
     attributes or use child nodes to define additional metadata.
 
     Now I can access that element (and it's metadata) from any `iron-meta-query` instance:
@@ -251,10 +246,6 @@ Or, in a Polymer element, you can include a meta in your template:
         /**
          * The type of meta-data.  All meta-data of the same type is stored
          * together.
-         *
-         * @attribute type
-         * @type String
-         * @default 'default'
          */
         type: {
           type: String,
@@ -265,9 +256,6 @@ Or, in a Polymer element, you can include a meta in your template:
         /**
          * Specifies a key to use for retrieving `value` from the `type`
          * namespace.
-         *
-         * @attribute key
-         * @type String
          */
         key: {
           type: String,
@@ -276,10 +264,6 @@ Or, in a Polymer element, you can include a meta in your template:
 
         /**
          * The meta-data to store or retrieve.
-         *
-         * @attribute value
-         * @type *
-         * @default this
          */
         value: {
           type: Object,
@@ -289,9 +273,6 @@ Or, in a Polymer element, you can include a meta in your template:
 
         /**
          * Array of all meta-data values for the given type.
-         *
-         * @property list
-         * @type Array
          */
         list: {
           type: Array,
@@ -303,8 +284,10 @@ Or, in a Polymer element, you can include a meta in your template:
       /**
        * Actually a factory method, not a true constructor. Only runs if
        * someone invokes it directly (via `new Polymer.IronMeta()`);
+       *
+       * @param {{type: (string|undefined), key: (string|undefined)}=} config
        */
-      constructor: function(config) {
+      factoryImpl: function(config) {
         if (config) {
           for (var n in config) {
             switch(n) {
@@ -337,10 +320,8 @@ Or, in a Polymer element, you can include a meta in your template:
 
       /**
        * Retrieves meta data value by key.
-       *
-       * @method byKey
-       * @param {String} key The key of the meta-data to be returned.
-       * @returns *
+       * @param {string} key The key of the meta-data to be returned.
+       * @return {*}
        */
       byKey: function(key) {
         return this._metaData && this._metaData[key];
