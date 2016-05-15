@@ -60,40 +60,38 @@ style this element.
 -->
 
 <dom-module id="gold-phone-input">
-  <style>
-  :host {
-    display: block;
-  }
-
-  /* TODO: This should be a dropdown */
-  span {
-    @apply(--paper-font-subhead);
-    @apply(--paper-input-container-input);
-    width: 40px;
-  }
-
-  .country-code {
-    @apply(--gold-phone-input-country-code);
-  }
-
-  .container {
-    @apply(--layout-horizontal);
-  }
-
-  /* TODO(notwaldorf): The style applied by paper-input-container is more
-   * specific, and we need the important to override it. This will go away
-   * once we can refactor this element to use the paper-input suffix */
-  label {
-    left: 40px !important;
-  }
-
-  input {
-    @apply(--layout-flex);
-  }
-
-  </style>
-
   <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      /* TODO: This should be a dropdown */
+      span {
+        @apply(--paper-font-subhead);
+        @apply(--paper-input-container-input);
+        width: 40px;
+      }
+
+      .country-code {
+        @apply(--gold-phone-input-country-code);
+      }
+
+      .container {
+        @apply(--layout-horizontal);
+      }
+
+      /* TODO(notwaldorf): The style applied by paper-input-container is more
+       * specific, and we need the important to override it. This will go away
+       * once we can refactor this element to use the paper-input suffix */
+      label {
+        left: 40px !important;
+      }
+
+      input {
+        @apply(--layout-flex);
+      }
+    </style>
     <paper-input-container id="container"
         disabled$="[[disabled]]"
         no-label-float="[[noLabelFloat]]"
@@ -132,10 +130,7 @@ style this element.
     </paper-input-container>
   </template>
 
-</dom-module>
-
-<script>
-(function() {
+  <script>
   Polymer({
 
     is: 'gold-phone-input',
@@ -173,6 +168,7 @@ style this element.
       },
 
       value: {
+        type: String,
         observer: '_onValueChanged'
       }
     },
@@ -244,7 +240,7 @@ style this element.
 
       // Advance or back up the caret based on the change that happened before it.
       this.$.input.selectionStart = this.$.input.selectionEnd = start + dashesDifference;
-      
+
       this._handleAutoValidate();
     },
 
@@ -272,8 +268,8 @@ style this element.
         this._handleAutoValidate();
       }
     }
-  })
+  });
 
-})();
+  </script>
 
-</script>
+</dom-module>

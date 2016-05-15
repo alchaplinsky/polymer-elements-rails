@@ -53,7 +53,6 @@ style this element.
 
 @group Gold Elements
 @hero hero.svg
-@class gold-cc-cvc-input
 @demo demo/index.html
 -->
 
@@ -66,6 +65,10 @@ style this element.
 
       iron-icon {
         margin-left: 10px;
+      }
+
+      iron-icon[hidden] {
+        display: none !important;
       }
 
       .container {
@@ -150,6 +153,7 @@ style this element.
           },
 
           value: {
+            type: String,
             observer: '_onValueChanged'
           }
         },
@@ -195,11 +199,10 @@ style this element.
          */
         validate: function() {
           // Empty, non-required input is valid.
-          if (!this.required && this.value == '') {
-            return true;
-          }
-
-          var valid = this.value.length == this._requiredLength;
+          var valid =
+              (this.$.input.validate() &&
+              this.value.length == this._requiredLength) ||
+              !this.required && this.value == '';
 
           // Update the container and its addons (i.e. the custom error-message).
           this.$.container.invalid = !valid;

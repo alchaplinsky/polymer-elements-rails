@@ -1,6 +1,6 @@
 {
   "name": "paper-radio-group",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "A group of material design radio buttons",
   "authors": [
     "The Polymer Authors"
@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
     "iron-test-helpers": "PolymerElements/iron-test-helpers#^1.0.0",
     "paper-radio-button": "PolymerElements/paper-radio-button#^1.0.0",
     "paper-styles": "PolymerElements/paper-styles#^1.0.0",
@@ -34,11 +35,11 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
   "main": "paper-radio-group.html",
-  "_release": "1.0.9",
+  "_release": "1.1.0",
   "_resolution": {
     "type": "version",
-    "tag": "v1.0.9",
-    "commit": "27a8447ed1709dd1a9bef514acd7dee218604077"
+    "tag": "v1.1.0",
+    "commit": "1e918232809e7c6dca422b038be60b63bf09ade6"
   },
   "_source": "git://github.com/PolymerElements/paper-radio-group.git",
   "_target": "^1.0.0",
