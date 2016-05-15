@@ -15,7 +15,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   background: var(--paper-dialog-background-color, --primary-background-color);
   color: var(--paper-dialog-color, --primary-text-color);
 
-  @apply(--layout-scroll);
   @apply(--paper-font-body1);
   @apply(--shadow-elevation-16dp);
   @apply(--paper-dialog);
@@ -28,7 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 :host > ::content > .no-padding {
   padding: 0;
-};
+}
 
 :host > ::content > *:first-child {
   margin-top: 24px;
@@ -51,7 +50,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   padding: 8px 8px 8px 24px;
   margin: 0;
 
-  color: var(--paper-dialog-button-color, --default-primary-color);
+  color: var(--paper-dialog-button-color, --primary-color);
 
   @apply(--layout-horizontal);
   @apply(--layout-end-justified);
