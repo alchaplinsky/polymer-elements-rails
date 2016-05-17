@@ -24,8 +24,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     validate: function(date) {
       if (!date)
         return false;
-        
-      if (date.month > 11 || date.month < 0)
+
+      if (date.month > 12 || date.month < 1)
         return false;
 
       var then = new Date ('20' + date.year, date.month);

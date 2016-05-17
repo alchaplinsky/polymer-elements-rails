@@ -8,6 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../promise-polyfill/promise-polyfill.html">
 
 <script>
   (function() {
@@ -16,13 +17,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // document.getElementsByTagName('script') workaround seems to be broken by
     // HTML imports. Not important for now as neither of those browsers support
     // service worker yet.
-    var currentScript = document.currentScript.baseURI;
-
+    var currentScript = (document.currentScript || {}).baseURI;
     var SCOPE = new URL('./$$platinum-push-messaging$$/', currentScript).href;
-    var WORKER_URL = new URL('./service-worker.js', currentScript).href;
-
     var BASE_URL = new URL('./', document.location.href).href;
-
     var SUPPORTED = 'serviceWorker' in navigator &&
         'PushManager' in window  &&
         'Notification' in window;
@@ -47,6 +44,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      * The element can be placed anywhere, but should only be used once in a
      * page. If there are multiple occurrences, only one will be active.
      *
+     * # Sample
+     *
+     * For a complete sample that uses the element, see the [Cat Push
+     * Notifications][3] project.
+     *
      * # Requirements
      * Push messaging is currently only available in Google Chrome, which
      * requires you to configure Google Cloud Messaging. Chrome will check that
@@ -54,7 +56,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      * You can find full details of how to set all of this up in the [HTML5
      * Rocks guide to push notifications][1].
      *
-     * # Notifcation details
+     * # Notification details
      * The data for how a notification should be displayed can come from one of
      * three places.
      *
@@ -106,6 +108,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      *
      * [1]: http://updates.html5rocks.com/2015/03/push-notificatons-on-the-open-web
      * [2]: https://developer.android.com/google/gcm/http.html
+     * [3]: https://github.com/notwaldorf/caturday-post
      *
      * @demo demo/
      */
@@ -121,7 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         supported: {
           readOnly: true,
           type: Boolean,
-          value: SUPPORTED
+          value: function() { return SUPPORTED; }
         },
 
         /**
@@ -144,54 +147,131 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           value: false
         },
 
+        /**
+         * The location of the service worker script required by the element.
+         * The script is distributed alongside the main HTML import file for the
+         * element, so the location can normally be determined automatically.
+         * However, if you vulcanize your project you will need to include the
+         * script in your built project manually and use this property to let
+         * the element know how to load it.
+         */
+        workerUrl: {
+          type: String,
+          value: function() {
+            return new URL('./service-worker.js', currentScript).href;
+          }
+        },
 
         /**
          * A URL from which message information can be retrieved.
          *
          * When a push event happens that does not contain a message body this
-         * URL will be fetched. The URL is expected to be for a JSON document in
-         * the format:
-         * ```
-         * {
-         *   "title": "The title for the notification",
-         *   "body": "The message to display in the notification",
-         *   "url": "The URL to display when the notification is clicked",
-         *   "icon": "The URL of an icon to display with the notification",
-         *   "tag": "An identifier that determines which notifications can be displayed at the same time"
-         * }
-         * ```
+         * URL will be fetched. The document will be parsed as JSON, and should
+         * result in an object.
+         *
+         * The valid keys for the object are `title`, `message`, `url`, `icon`,
+         * `tag`, `dir`, `lang`, `noscreen`, `renotify`, `silent`, `sound`,
+         * `sticky` and `vibrate`. For documentation of these values see the
+         * attributes of the same names, except that these values override the
+         * element attributes.
          */
         messageUrl: String,
 
         /**
-         * A default notification title.
+         * The default notification title.
          */
         title: String,
 
         /**
-         * A default notification message.
+         * The default notification message.
          */
         message: String,
-
-        /**
-         * A default icon for notifications.
-         */
-        iconUrl: String,
-
-        /**
-         * A default URL to display when a notification is clicked.
-         */
-        clickUrl: {
-          type: String,
-          value: document.location.href
-        },
 
         /**
          * A default tag for the notifications that will be generated by
          * this element. Notifications with the same tag will overwrite one
          * another, so that only one will be shown at once.
          */
-        tag: String
+        tag: String,
+
+        /**
+         * The URL of a default icon for notifications.
+         */
+        iconUrl: String,
+
+        /**
+         * The default text direction for the title and body of the
+         * notification. Can be `auto`, `ltr` or `rtl`.
+         */
+        dir: {
+          type: String,
+          value: 'auto'
+        },
+
+        /**
+         * The default language to assume for the title and body of the
+         * notification. If set this must be a valid
+         * [BCP 47](https://tools.ietf.org/html/bcp47) language tag.
+         */
+        lang: String,
+
+        /**
+         * If true then displaying the notification should not turn the device's
+         * screen on.
+         */
+        noscreen: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * When a notification is displayed that has the same `tag` as an
+         * existing notification, the existing one will be replaced. If this
+         * flag is true then such a replacement will cause the user to be
+         * alerted as though it were a new notification, by vibration or sound
+         * as appropriate.
+         */
+        renotify: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true then displaying the notification should not cause any
+         * vibration or sound to be played.
+         */
+        silent: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true then the notification should be sticky, meaning that it is
+         * not directly dismissable.
+         */
+        sticky: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * The pattern of vibration that should be used by default when a
+         * notification is displayed. See
+         */
+        vibrate: Array,
+
+        /**
+         * The URL of a default sound file to play when a notification is shown.
+         */
+        sound: String,
+
+        /**
+         * The default URL to display when a notification is clicked.
+         */
+        clickUrl: {
+          type: String,
+          value: document.location.href
+        },
       },
 
       /**
@@ -225,7 +305,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        * @return {Promise<ServiceWorkerRegistration>}
        */
       _getRegistration: function() {
-        return navigator.serviceWorker.getRegistration(SCOPE);
+        return navigator.serviceWorker.getRegistration(SCOPE).then(function(registration) {
+          // If we have a service worker whose scope is a superset of the push
+          // scope then getRegistration will return that if our own worker is
+          // not registered. Check that the registration we have is really ours
+          if (registration && registration.scope === SCOPE) {
+            return registration;
+          }
+
+          return;
+        });
       },
 
       /**
@@ -296,7 +385,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }).map(function(propName) {
           return JSON.stringify(propName) + ':' + JSON.stringify(options[propName]);
         });
-        return '{' + parts.join(',') + '}';
+        return encodeURIComponent('{' + parts.join(',') + '}');
       },
 
       /**
@@ -312,11 +401,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           message: this.message,
           iconUrl: this.iconUrl,
           clickUrl: this.clickUrl,
+          dir: this.dir,
+          lang: this.lang,
+          noscreen: this.noscreen,
+          renotify: this.renotify,
+          silent: this.silent,
+          sound: this.sound,
+          sticky: this.sticky,
+          vibrate: this.vibrate,
           version: VERSION,
           baseUrl: BASE_URL
         });
 
-        return WORKER_URL + '?' + options;
+        return this.workerUrl + '?' + options;
       },
 
       /**

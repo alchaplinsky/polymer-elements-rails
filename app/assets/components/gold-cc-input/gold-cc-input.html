@@ -8,7 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../paper-input/paper-input-behavior.html">
 <link rel="import" href="../paper-input/paper-input-container.html">
 <link rel="import" href="../paper-input/paper-input-error.html">
@@ -54,7 +54,7 @@ style this element.
 -->
 
 <dom-module id="gold-cc-input">
-  <style is="custom-style">
+  <style>
   :host {
     display: block;
   }
@@ -69,6 +69,10 @@ style this element.
     --iron-icon-width: 40px;
     --iron-icon-height: 24px;
   }
+
+  .container {
+    @apply(--layout-horizontal);
+  }
   </style>
 
   <template>
@@ -81,7 +85,7 @@ style this element.
 
       <label hidden$="[[!label]]">[[label]]</label>
 
-      <div class="horizontal layout">
+      <div class="container">
         <input is="iron-input" id="input"
             aria-labelledby$="[[_ariaLabelledBy]]"
             aria-describedby$="[[_ariaDescribedBy]]"
@@ -140,17 +144,34 @@ style this element.
         type: String,
         notify: true
       },
+
+      value: {
+        observer: '_onValueChanged'
+      }
     },
 
     observers: [
-      '_computeValue(value)'
+      '_onFocusedChanged(focused)'
     ],
 
-    _computeValue: function(value) {
-      var start = this.$.input.selectionStart;
-      var previousCharASpace = this.value.charAt(start - 1) == ' ';
+    ready: function() {
+      // If there's an initial input, validate it.
+      if (this.value)
+        this._handleAutoValidate();
+    },
 
-      value = value.replace(/\s+/g, '');
+    /**
+     * A handler that is called on input
+     */
+    _onValueChanged: function(value, oldValue) {
+      // The initial property assignment is handled by `ready`.
+      if (oldValue == undefined)
+        return;
+
+      var start = this.$.input.selectionStart;
+      var previousCharASpace = value ? this.value.charAt(start - 1) == ' ' : false;
+
+      var value = value.replace(/\s+/g, '');
       var formattedValue = '';
       for (var i = 0; i < value.length; i++) {
         // Add a space after every 4 characters.
@@ -159,15 +180,7 @@ style this element.
         }
         formattedValue += value[i];
       }
-      this.value = formattedValue.trim();
-
-      if (this.autoValidate)
-        this.validate();
-
-      // The cursor automatically jumps to the end after re-setting the value,
-      // so restore it to its original position.
-      this.$.input.selectionStart = start;
-      this.$.input.selectionEnd = start;
+      this.updateValueAndPreserveCaret(formattedValue.trim());
 
       // If the character right before the selection is a newly inserted
       // space, we need to advance the selection to maintain the caret position.
@@ -175,8 +188,16 @@ style this element.
         this.$.input.selectionStart = start+1;
         this.$.input.selectionEnd = start+1;
       }
+
+      this._handleAutoValidate();
     },
 
+    /**
+     * Returns true if the element has a valid value, and sets the visual
+     * error state.
+     *
+     * @return {boolean} Whether the input is currently valid or not.
+     */
     validate: function() {
       // Empty, non-required input is valid.
       if (!this.required && this.value == '') {
@@ -207,6 +228,15 @@ style this element.
       }
 
       return valid;
+    },
+
+    /**
+     * Overidden from Polymer.IronControlState.
+     */
+    _onFocusedChanged: function(focused) {
+      if (!focused) {
+        this._handleAutoValidate();
+      }
     }
   })
 
