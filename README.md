@@ -28,7 +28,7 @@ Add this to your `Gemfile`:
 
 ```
   gem 'polymer-rails'
-  gem 'polymer-paper-rails'
+  gem 'polymer-elements-rails'
 ```
 
 After running bundle install require needed paper elements into your `application.html` manifest file.
