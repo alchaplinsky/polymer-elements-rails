@@ -9,16 +9,12 @@ Polymer-elements-rails gem helps you to bring polymer elements into your Rails p
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'polymer-elements-rails'
+gem 'polymer-elements-rails', github: 'lyonmarks/polymer-elements-rails'
 ```
 
 And then execute:
 
     $ bundle
-
-Or install it yourself as:
-
-    $ gem install polymer-elements-rails
 
 ## Usage
 
