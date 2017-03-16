@@ -88,6 +88,8 @@ Custom property | Description | Default
 `--paper-tabs-selection-bar-color` | Color for the selection bar | `--paper-yellow-a100`
 `--paper-tabs-selection-bar` | Mixin applied to the selection bar | `{}`
 `--paper-tabs` | Mixin applied to the tabs | `{}`
+`--paper-tabs-content` | Mixin applied to the content container of tabs | `{}`
+`--paper-tabs-container` | Mixin applied to the layout container of tabs | `{}`
 
 @hero hero.svg
 @demo demo/index.html
@@ -126,6 +128,7 @@ Custom property | Description | Default
         white-space: nowrap;
         overflow: hidden;
         @apply(--layout-flex-auto);
+        @apply(--paper-tabs-container);
       }
 
       #tabsContent {
@@ -133,6 +136,7 @@ Custom property | Description | Default
         -moz-flex-basis: auto;
         -ms-flex-basis: auto;
         flex-basis: auto;
+        @apply(--paper-tabs-content);
       }
 
       #tabsContent.scrollable {
@@ -140,8 +144,20 @@ Custom property | Description | Default
         white-space: nowrap;
       }
 
-      #tabsContent.horizontal {
+      #tabsContent:not(.scrollable),
+      #tabsContent.scrollable.fit-container {
         @apply(--layout-horizontal);
+      }
+
+      #tabsContent.scrollable.fit-container {
+        min-width: 100%;
+      }
+
+      #tabsContent.scrollable.fit-container > ::content > * {
+        /* IE - prevent tabs from compressing when they should scroll. */
+        -ms-flex: 1 0 auto;
+        -webkit-flex: 1 0 auto;
+        flex: 1 0 auto;
       }
 
       .hidden {
@@ -162,11 +178,11 @@ Custom property | Description | Default
 
       #selectionBar {
         position: absolute;
-        height: 2px;
+        height: 0;
         bottom: 0;
         left: 0;
         right: 0;
-        background-color: var(--paper-tabs-selection-bar-color, --paper-yellow-a100);
+        border-bottom: 2px solid var(--paper-tabs-selection-bar-color, --paper-yellow-a100);
           -webkit-transform: scale(0);
         transform: scale(0);
           -webkit-transform-origin: left center;
@@ -200,7 +216,7 @@ Custom property | Description | Default
     <paper-icon-button icon="paper-tabs:chevron-left" class$="[[_computeScrollButtonClass(_leftHidden, scrollable, hideScrollButtons)]]" on-up="_onScrollButtonUp" on-down="_onLeftScrollButtonDown" tabindex="-1"></paper-icon-button>
 
     <div id="tabsContainer" on-track="_scroll" on-down="_down">
-      <div id="tabsContent" class$="[[_computeTabsContentClass(scrollable)]]">
+      <div id="tabsContent" class$="[[_computeTabsContentClass(scrollable, fitContainer)]]">
         <div id="selectionBar" class$="[[_computeSelectionBarClass(noBar, alignBottom)]]"
             on-transitionend="_onBarTransitionEnd"></div>
         <content select="*"></content>
@@ -252,6 +268,15 @@ Custom property | Description | Default
          * If true, tabs are scrollable and the tab width is based on the label width.
          */
         scrollable: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true, tabs expand to fit their container. This currently only applies when
+         * scrollable is true.
+         */
+        fitContainer: {
           type: Boolean,
           value: false
         },
@@ -385,8 +410,8 @@ Custom property | Description | Default
         return '';
       },
 
-      _computeTabsContentClass: function(scrollable) {
-        return scrollable ? 'scrollable' : 'horizontal';
+      _computeTabsContentClass: function(scrollable, fitContainer) {
+        return scrollable ? 'scrollable' + (fitContainer ? ' fit-container' : '') : ' fit-container';
       },
 
       _computeSelectionBarClass: function(noBar, alignBottom) {
@@ -417,6 +442,7 @@ Custom property | Description | Default
       _onIronDeselect: function(event) {
         this.debounce('tab-changed', function() {
           this._tabChanged(null, this._previousTab);
+          this._previousTab = null;
         // See polymer/polymer#1305
         }, 1);
       },
@@ -539,6 +565,9 @@ Custom property | Description | Default
 
       _tabChanged: function(tab, old) {
         if (!tab) {
+          // Remove the bar without animation.
+          this.$.selectionBar.classList.remove('expand');
+          this.$.selectionBar.classList.remove('contract');
           this._positionBar(0, 0);
           return;
         }
@@ -554,7 +583,9 @@ Custom property | Description | Default
         };
 
         if (this.noSlide || old == null) {
-          // position bar directly without animation
+          // Position the bar without animation.
+          this.$.selectionBar.classList.remove('expand');
+          this.$.selectionBar.classList.remove('contract');
           this._positionBar(this._pos.width, this._pos.left);
           return;
         }
@@ -609,7 +640,7 @@ Custom property | Description | Default
         this._width = width;
         this._left = left;
         this.transform(
-            'translate3d(' + left + '%, 0, 0) scaleX(' + (width / 100) + ')',
+            'translateX(' + left + '%) scaleX(' + (width / 100) + ')',
             this.$.selectionBar);
       },
 

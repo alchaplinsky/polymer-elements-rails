@@ -36,7 +36,7 @@
     "tag": "v1.0.1",
     "commit": "fa713d5a3a275fe86e9961d595f1cdc6e92f2645"
   },
-  "_source": "git://github.com/PolymerElements/gold-elements.git",
-  "_target": "^1.0.0",
+  "_source": "https://github.com/PolymerElements/gold-elements.git",
+  "_target": "^1.0.1",
   "_originalSource": "PolymerElements/gold-elements"
 }

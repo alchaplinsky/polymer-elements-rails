@@ -39,7 +39,7 @@
     "tag": "v1.0.2",
     "commit": "3fa46649197efb242c04f9e91f111b698a5a17a9"
   },
-  "_source": "git://github.com/PolymerElements/platinum-https-redirect.git",
+  "_source": "https://github.com/PolymerElements/platinum-https-redirect.git",
   "_target": "^1.0.0",
   "_originalSource": "PolymerElements/platinum-https-redirect"
 }

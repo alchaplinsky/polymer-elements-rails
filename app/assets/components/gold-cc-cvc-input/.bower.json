@@ -41,7 +41,7 @@
     "tag": "v1.0.9",
     "commit": "d250c3d25bd5a195deb76a8f5bf231c7012c9752"
   },
-  "_source": "git://github.com/PolymerElements/gold-cc-cvc-input.git",
+  "_source": "https://github.com/PolymerElements/gold-cc-cvc-input.git",
   "_target": "^1.0.0",
   "_originalSource": "PolymerElements/gold-cc-cvc-input"
 }

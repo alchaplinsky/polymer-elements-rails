@@ -37,7 +37,7 @@
     "tag": "v1.0.2",
     "commit": "299178adacc441491280f4b3c31fe04030ac6d83"
   },
-  "_source": "git://github.com/PolymerElements/iron-label.git",
+  "_source": "https://github.com/PolymerElements/iron-label.git",
   "_target": "^1.0.0",
   "_originalSource": "PolymerElements/iron-label"
 }
