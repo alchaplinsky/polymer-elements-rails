@@ -23,8 +23,8 @@ In order to use Polymer elements you need to have [polymer](https://www.polymer-
 Add this to your `Gemfile`:
 
 ```
-  gem 'polymer-rails'
-  gem 'polymer-elements-rails'
+ gem 'polymer-rails', github: 'lyonmarks/polymer-rails'
+ gem 'polymer-elements-rails', github: 'lyonmarks/polymer-elements-rails'
 ```
 
 After running bundle install require needed paper elements into your `application.html` manifest file.
