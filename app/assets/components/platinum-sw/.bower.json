@@ -39,7 +39,7 @@
     "tag": "v1.3.0",
     "commit": "11d595b59ffd60a3d7b92275a3646368671c0bd6"
   },
-  "_source": "git://github.com/PolymerElements/platinum-sw.git",
+  "_source": "https://github.com/PolymerElements/platinum-sw.git",
   "_target": "^1.2.0",
   "_originalSource": "PolymerElements/platinum-sw"
 }

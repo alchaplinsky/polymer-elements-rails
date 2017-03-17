@@ -9,16 +9,12 @@ Polymer-elements-rails gem helps you to bring polymer elements into your Rails p
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'polymer-elements-rails'
+gem 'polymer-elements-rails', github: 'lyonmarks/polymer-elements-rails'
 ```
 
 And then execute:
 
     $ bundle
-
-Or install it yourself as:
-
-    $ gem install polymer-elements-rails
 
 ## Usage
 
@@ -27,8 +23,8 @@ In order to use Polymer elements you need to have [polymer](https://www.polymer-
 Add this to your `Gemfile`:
 
 ```
-  gem 'polymer-rails'
-  gem 'polymer-elements-rails'
+ gem 'polymer-rails', github: 'lyonmarks/polymer-rails'
+ gem 'polymer-elements-rails', github: 'lyonmarks/polymer-elements-rails'
 ```
 
 After running bundle install require needed paper elements into your `application.html` manifest file.
@@ -36,6 +32,11 @@ After running bundle install require needed paper elements into your `applicatio
 ```
   //= require polymer/polymer
   //= require paper-button/paper-button
+```
+For `app-layout` require
+
+```
+  //= app-layout-elements/app-layout
 ```
 
 Each component should be required only once. Thus if you've already required component that has dependencies, you don't need to explicitly require any of dependencies, otherwise it will raise exception.
