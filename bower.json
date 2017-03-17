@@ -5,6 +5,7 @@
     "iron-elements": "PolymerElements/iron-elements#^1.0.10",
     "paper-elements": "PolymerElements/paper-elements#^1.0.7",
     "gold-elements": "PolymerElements/gold-elements#^1.0.1",
-    "platinum-elements": "PolymerElements/platinum-elements#^2.0.0"
+    "platinum-elements": "PolymerElements/platinum-elements#^2.0.0",
+	"app-layout-elements": "PolymerElements/app-layout"
   }
 }
