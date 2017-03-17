@@ -33,6 +33,11 @@ After running bundle install require needed paper elements into your `applicatio
   //= require polymer/polymer
   //= require paper-button/paper-button
 ```
+For `app-layout` require
+
+```
+  //= app-layout-elements/app-layout
+```
 
 Each component should be required only once. Thus if you've already required component that has dependencies, you don't need to explicitly require any of dependencies, otherwise it will raise exception.
 
